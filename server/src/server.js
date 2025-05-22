@@ -57,8 +57,27 @@ app.get('/api/items', (req, res) => {
   });
 });
 
+// Удалить элемент по id
+app.delete('/api/items/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const idx = items.findIndex(item => item.id === id);
+  if (idx !== -1) {
+    items.splice(idx, 1);
+    // Также удаляем id из customOrder и selectedIds
+    userState.customOrder = userState.customOrder.filter(itemId => itemId !== id);
+    userState.selectedIds = userState.selectedIds.filter(itemId => itemId !== id);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: 'Item not found' });
+  }
+});
+
 // Получить состояние пользователя
 app.get('/api/state', (req, res) => {
+  // Очищаем customOrder и selectedIds от несуществующих id
+  const itemIds = new Set(items.map(item => item.id));
+  userState.customOrder = userState.customOrder.filter(id => itemIds.has(id));
+  userState.selectedIds = userState.selectedIds.filter(id => itemIds.has(id));
   res.json(userState);
 });
 

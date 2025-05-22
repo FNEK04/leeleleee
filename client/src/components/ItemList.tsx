@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { FixedSizeList as List } from 'react-window';
 import type { Item } from '../types';
-import { fetchItems, fetchUserState, saveUserState } from '../api';
+import { fetchItems, fetchUserState, saveUserState, deleteItem } from '../api';
 import './ItemList.css';
 
 // Количество элементов для загрузки за один раз
@@ -38,11 +38,20 @@ export const ItemList: React.FC = () => {
   const [page, setPage] = useState<number>(0);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [customOrder, setCustomOrder] = useState<number[]>([]);
-  const [search, setSearch] = useState<string>('');
+  
+  const getInitialSearch = () => {
+    if (typeof window !== 'undefined') {
+      const saved = window.localStorage.getItem('searchQuery');
+      return saved !== null ? saved : '';
+    }
+    return '';
+  };
+  const [search, setSearch] = useState<string>(getInitialSearch);
+  
   const [error, setError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [filterStates, setFilterStates] = useState<Record<string, {items: Item[], page: number}>>({});
-  
+
   // Используем debounce для поисковых запросов
   const debouncedSearch = useDebounce(search, 300);
   const prevSearchRef = useRef(search);
@@ -112,12 +121,29 @@ export const ItemList: React.FC = () => {
       const result = await fetchItems(currentPage, PAGE_SIZE, debouncedSearch, controller.signal);
       
       if (!controller.signal.aborted) {
-        setItems(prev => (reset ? result.items : [...prev, ...result.items]));
+        const newItems = reset ? result.items : [...items, ...result.items];
+        setItems(newItems);
         setTotal(result.total);
         setHasMore(result.hasMore);
         
         const newPage = reset ? 1 : currentPage + 1;
         setPage(newPage);
+        
+        // Проверка актуальности customOrder. selectedIds теперь не фильтруем здесь,
+        // чтобы выбор сохранялся независимо от текущего фильтра.
+        if (customOrder.length > 0) {
+          const allLoadedIds = new Set(newItems.map(item => item.id));
+          const filteredCustomOrder = customOrder.filter(id => allLoadedIds.has(id));
+          
+          if (filteredCustomOrder.length !== customOrder.length) {
+            setCustomOrder(filteredCustomOrder);
+            // selectedIds не изменяем, отправляем текущие
+            saveUserState({
+              selectedIds: Array.from(selectedIds), // Отправляем все selectedIds
+              customOrder: filteredCustomOrder
+            });
+          }
+        }
         
         // Кэшируем результаты
         if (result.items.length > 0) {
@@ -130,30 +156,45 @@ export const ItemList: React.FC = () => {
           }));
         }
       }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name !== 'AbortError') {
-        console.error('Ошибка при загрузке элементов:', err);
-        setError('Не удалось загрузить данные. Пожалуйста, попробуйте еще раз.');
+    } catch (err) {
+      // axios отменяет запрос с ошибкой CanceledError, fetch — с AbortError
+      if (
+        (err instanceof Error && err.name === 'CanceledError') ||
+        (err instanceof Error && err.name === 'AbortError')
+      ) {
+        // Не логируем и не показываем пользователю
+        return;
       }
+      console.error('Ошибка при загрузке элементов:', err);
+      setError('Не удалось загрузить данные. Пожалуйста, попробуйте еще раз.');
     } finally {
       if (!controller.signal.aborted) {
         loadingType(false);
         setLoading(false);
       }
     }
-  }, [page, debouncedSearch, filterStates]);
+  }, [page, debouncedSearch, filterStates, isSearching, items, customOrder, selectedIds]);
+
+  // Сохраняем search в localStorage при изменении
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('searchQuery', search);
+    }
+  }, [search]);
 
   // Инициализация: сначала userState, потом первая страница
   useEffect(() => {
     const init = async () => {
       setIsInitialLoading(true);
       await loadUserState();
+      // Загружаем элементы. Так как search уже инициализирован из localStorage,
+      // debouncedSearch будет содержать корректное значение для первого loadItems.
       await loadItems(true);
       setIsInitialLoading(false);
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // Убрали isSearchRestored из зависимостей, т.к. search инициализирован сразу
 
   // Поиск с учетом debounce
   useEffect(() => {
@@ -274,6 +315,52 @@ export const ItemList: React.FC = () => {
     }
   }, []);
 
+  // Удаление элемента
+  const handleDelete = useCallback(async (id: number) => {
+    if (loading) return;
+    setError(null);
+
+    // Оптимистично удаляем элемент из локального состояния
+    const prevItems = items;
+    const prevCustomOrder = customOrder;
+    const prevSelectedIds = new Set(selectedIds);
+    const prevFilterStates = { ...filterStates }; // Сохраняем текущий кэш фильтров
+    
+    // Удаляем из локального состояния
+    setItems(prevItems.filter(item => item.id !== id));
+    setCustomOrder(prevCustomOrder.filter(itemId => itemId !== id));
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
+    
+    // Обновляем кэш для всех фильтров (чтобы при смене фильтра не появлялся удаленный элемент)
+    const newFilterStates = { ...prevFilterStates };
+    Object.keys(newFilterStates).forEach(key => {
+      if (newFilterStates[key]?.items) {
+        newFilterStates[key].items = newFilterStates[key].items.filter(item => item.id !== id);
+      }
+    });
+    setFilterStates(newFilterStates);
+
+    try {
+      await deleteItem(id);
+      // Асинхронно обновляем состояние пользователя с учетом сортировки
+      saveUserState({
+        selectedIds: Array.from(selectedIds).filter(itemId => itemId !== id),
+        customOrder: customOrder.filter(itemId => itemId !== id)
+      });
+    } catch {
+      // Откатываем изменения, если ошибка
+      setError('Не удалось удалить элемент. Пожалуйста, попробуйте еще раз.');
+      setItems(prevItems);
+      setCustomOrder(prevCustomOrder);
+      setSelectedIds(prevSelectedIds);
+      setFilterStates(prevFilterStates);
+    }
+  }, [loading, items, customOrder, selectedIds, filterStates]);
+
   // Мемоизация Row-компонента для улучшения производительности
   const Row = useMemo(() => {
     return ({ index, style }: { index: number, style: React.CSSProperties }) => {
@@ -305,13 +392,23 @@ export const ItemList: React.FC = () => {
                 </div>
                 <div className="item-cell id">{item.id}</div>
                 <div className="item-cell value">{item.value}</div>
+                <div className="item-cell">
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(item.id)}
+                    disabled={loading}
+                    title="Удалить элемент"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
             );
           }}
         </Draggable>
       );
     };
-  }, [items, selectedIds, draggingId, loading, handleSelect]);
+  }, [items, selectedIds, draggingId, loading, handleSelect, handleDelete]);
 
   return (
     <div className="item-list-container">

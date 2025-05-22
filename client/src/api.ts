@@ -35,4 +35,9 @@ export const fetchUserState = async (): Promise<UserState> => {
 export const saveUserState = async (state: UserState): Promise<UserState> => {
   const response = await api.post<UserState>('/state', state);
   return response.data;
+};
+
+// Удалить элемент по id
+export const deleteItem = async (id: number): Promise<void> => {
+  await api.delete(`/items/${id}`);
 }; 
