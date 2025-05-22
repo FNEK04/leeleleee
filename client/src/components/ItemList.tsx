@@ -136,7 +136,6 @@ export const ItemList: React.FC = () => {
     setItems([]);
     setSearch('');
     await saveUserState({ selectedIds: [], customOrder: [] });
-    await loadItems(true);
   };
 
   // Рендер строки в виртуализированном списке
