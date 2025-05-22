@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import type { DropResult } from '@hello-pangea/dnd';
 import { FixedSizeList as List } from 'react-window';
@@ -12,82 +12,173 @@ const PAGE_SIZE = 20;
 // Высота строки списка
 const ROW_HEIGHT = 40;
 
+// Хук для debounce
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 // Компонент для списка/таблицы элементов
 export const ItemList: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [customOrder, setCustomOrder] = useState<number[]>([]);
   const [search, setSearch] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<number | null>(null);
+  const [filterStates, setFilterStates] = useState<Record<string, {items: Item[], page: number}>>({});
+  
+  // Используем debounce для поисковых запросов
+  const debouncedSearch = useDebounce(search, 300);
+  const prevSearchRef = useRef(search);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Функция для debounce сохранения состояния
+  const saveStateDebounced = useRef(setTimeout(() => {}, 0));
+  const saveStateWithDebounce = (state: { selectedIds: number[], customOrder: number[] }) => {
+    clearTimeout(saveStateDebounced.current);
+    saveStateDebounced.current = setTimeout(async () => {
+      try {
+        await saveUserState(state);
+      } catch (error) {
+        setError('Не удалось сохранить состояние. Пожалуйста, попробуйте еще раз.');
+        console.error('Ошибка при сохранении состояния:', error);
+      }
+    }, 500);
+  };
 
   // Загрузка состояния пользователя (выбранные элементы и сортировка)
   const loadUserState = useCallback(async () => {
     try {
+      setError(null);
       const state = await fetchUserState();
       setSelectedIds(new Set(state.selectedIds));
       setCustomOrder(state.customOrder);
-    } catch {
+    } catch (err: unknown) {
+      setError('Не удалось загрузить пользовательские настройки');
       setSelectedIds(new Set());
       setCustomOrder([]);
+      console.error('Ошибка при загрузке пользовательского состояния:', err);
     }
   }, []);
 
   // Загрузка элементов с пагинацией и поддержкой поиска
   const loadItems = useCallback(async (reset: boolean = false) => {
-    try {
-      setLoading(true);
-      const currentPage = reset ? 0 : page;
-      const result = await fetchItems(currentPage, PAGE_SIZE, search);
-      setItems(prev => (reset ? result.items : [...prev, ...result.items]));
-      setTotal(result.total);
-      setHasMore(result.hasMore);
-      if (!reset) {
-        setPage(currentPage + 1);
-      } else {
-        setPage(1);
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке элементов:', error);
-    } finally {
-      setLoading(false);
+    // Отменяем предыдущий запрос, если он существует
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
-  }, [page, search]);
+    
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    
+    const loadingType = reset 
+      ? (debouncedSearch ? setIsSearching : setIsInitialLoading) 
+      : setIsLoadingMore;
+    
+    try {
+      loadingType(true);
+      setLoading(true);
+      setError(null);
+      
+      const currentPage = reset ? 0 : page;
+      
+      // Проверяем кэш для текущего поиска, если сбрасываем страницу
+      const cacheKey = debouncedSearch || 'all';
+      if (reset && filterStates[cacheKey] && !isSearching) {
+        const cachedState = filterStates[cacheKey];
+        setItems(cachedState.items);
+        setPage(cachedState.page);
+        loadingType(false);
+        setLoading(false);
+        return;
+      }
+      
+      const result = await fetchItems(currentPage, PAGE_SIZE, debouncedSearch, controller.signal);
+      
+      if (!controller.signal.aborted) {
+        setItems(prev => (reset ? result.items : [...prev, ...result.items]));
+        setTotal(result.total);
+        setHasMore(result.hasMore);
+        
+        const newPage = reset ? 1 : currentPage + 1;
+        setPage(newPage);
+        
+        // Кэшируем результаты
+        if (result.items.length > 0) {
+          setFilterStates(prev => ({
+            ...prev,
+            [cacheKey]: { 
+              items: reset ? result.items : [...(prev[cacheKey]?.items || []), ...result.items],
+              page: newPage
+            }
+          }));
+        }
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        console.error('Ошибка при загрузке элементов:', err);
+        setError('Не удалось загрузить данные. Пожалуйста, попробуйте еще раз.');
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        loadingType(false);
+        setLoading(false);
+      }
+    }
+  }, [page, debouncedSearch, filterStates]);
 
   // Инициализация: сначала userState, потом первая страница
   useEffect(() => {
     const init = async () => {
+      setIsInitialLoading(true);
       await loadUserState();
       await loadItems(true);
+      setIsInitialLoading(false);
     };
     init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Поиск
+  // Поиск с учетом debounce
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (debouncedSearch !== undefined && prevSearchRef.current !== debouncedSearch) {
       loadItems(true);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [search]);
+      prevSearchRef.current = debouncedSearch;
+    }
+  }, [debouncedSearch, loadItems]);
 
   // Обработка скролла для бесконечной загрузки
-  const handleScroll = ({ scrollOffset, scrollDirection }: { scrollOffset: number, scrollDirection: string }) => {
-    if (scrollDirection === 'forward' && !loading && hasMore) {
+  const handleScroll = useCallback(({ scrollOffset, scrollDirection }: { scrollOffset: number, scrollDirection: string }) => {
+    if (scrollDirection === 'forward' && !loading && !isLoadingMore && hasMore) {
       const scrollThreshold = items.length * ROW_HEIGHT - 800;
       if (scrollOffset > scrollThreshold) {
+        setIsLoadingMore(true);
         loadItems();
       }
     }
-  };
+  }, [loading, isLoadingMore, hasMore, items.length, loadItems]);
 
   // Обработка выбора элемента (чекбокс)
-  const handleSelect = async (itemId: number) => {
+  const handleSelect = useCallback(async (itemId: number) => {
     if (loading) return;
+    
+    setError(null);
     const newSet = new Set(selectedIds);
     if (newSet.has(itemId)) {
       newSet.delete(itemId);
@@ -95,12 +186,19 @@ export const ItemList: React.FC = () => {
       newSet.add(itemId);
     }
     setSelectedIds(newSet);
-    await saveUserState({ selectedIds: Array.from(newSet), customOrder });
-  };
+    
+    // Используем debounce для сохранения
+    saveStateWithDebounce({ 
+      selectedIds: Array.from(newSet), 
+      customOrder 
+    });
+  }, [loading, selectedIds, customOrder]);
 
   // Множественный выбор (чекбоксы в шапке)
-  const handleSelectAll = async () => {
+  const handleSelectAll = useCallback(async () => {
     if (loading) return;
+    
+    setError(null);
     let newSet: Set<number>;
     if (selectedIds.size === items.length) {
       newSet = new Set();
@@ -109,72 +207,121 @@ export const ItemList: React.FC = () => {
       items.forEach(item => newSet.add(item.id));
     }
     setSelectedIds(newSet);
-    await saveUserState({ selectedIds: Array.from(newSet), customOrder });
-  };
+    
+    // Используем debounce для сохранения
+    saveStateWithDebounce({ 
+      selectedIds: Array.from(newSet), 
+      customOrder 
+    });
+  }, [loading, selectedIds, items, customOrder]);
 
   // Обработка изменения сортировки (drag&drop)
-  const handleDragEnd = async (result: DropResult) => {
+  const handleDragEnd = useCallback(async (result: DropResult) => {
     setDraggingId(null);
     if (!result.destination) return;
+    
     const sourceIndex = result.source.index;
     const destIndex = result.destination.index;
     if (sourceIndex === destIndex) return;
+    
+    setError(null);
     const newItems = [...items];
     const [moved] = newItems.splice(sourceIndex, 1);
     newItems.splice(destIndex, 0, moved);
     setItems(newItems);
+    
     const newOrder = newItems.map(item => item.id);
     setCustomOrder(newOrder);
-    await saveUserState({ selectedIds: Array.from(selectedIds), customOrder: newOrder });
-  };
+    
+    // Обновляем кэш для текущего фильтра
+    const cacheKey = debouncedSearch || 'all';
+    setFilterStates(prev => ({
+      ...prev,
+      [cacheKey]: { 
+        items: newItems,
+        page: page
+      }
+    }));
+    
+    // Используем debounce для сохранения
+    saveStateWithDebounce({ 
+      selectedIds: Array.from(selectedIds), 
+      customOrder: newOrder 
+    });
+  }, [items, selectedIds, page, debouncedSearch]);
 
   // Сброс состояния
-  const handleReset = async () => {
+  const handleReset = useCallback(async () => {
+    setError(null);
+    
+    // Отменяем текущий запрос, если есть
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
     setSelectedIds(new Set());
     setCustomOrder([]);
     setPage(0);
     setItems([]);
     setSearch('');
-    await saveUserState({ selectedIds: [], customOrder: [] });
-  };
+    setFilterStates({}); // Очищаем кэш
+    
+    try {
+      await saveUserState({ selectedIds: [], customOrder: [] });
+    } catch (err: unknown) {
+      setError('Не удалось сбросить настройки. Пожалуйста, попробуйте еще раз.');
+      console.error('Ошибка при сбросе состояния:', err);
+    }
+  }, []);
 
-  // Рендер строки в виртуализированном списке
-  const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => {
-    const item = items[index];
-    if (!item) return null;
-    const isSelected = selectedIds.has(item.id);
-    const isDragging = draggingId === item.id;
-    return (
-      <Draggable draggableId={`item-${item.id}`} index={index} key={item.id}>
-        {(provided, snapshot) => {
-          if (snapshot.isDragging && draggingId !== item.id) setDraggingId(item.id);
-          return (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              className={`item-row${isSelected ? ' selected' : ''}${isDragging ? ' dragging' : ''}`}
-              style={{ ...style, ...provided.draggableProps.style }}
-            >
-              <div className="item-cell checkbox">
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => handleSelect(item.id)}
-                  disabled={loading}
-                />
+  // Мемоизация Row-компонента для улучшения производительности
+  const Row = useMemo(() => {
+    return ({ index, style }: { index: number, style: React.CSSProperties }) => {
+      const item = items[index];
+      if (!item) return null;
+      
+      const isSelected = selectedIds.has(item.id);
+      const isDragging = draggingId === item.id;
+      
+      return (
+        <Draggable draggableId={`item-${item.id}`} index={index} key={item.id}>
+          {(provided, snapshot) => {
+            if (snapshot.isDragging && draggingId !== item.id) setDraggingId(item.id);
+            return (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className={`item-row${isSelected ? ' selected' : ''}${isDragging ? ' dragging' : ''}`}
+                style={{ ...style, ...provided.draggableProps.style }}
+              >
+                <div className="item-cell checkbox">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => handleSelect(item.id)}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="item-cell id">{item.id}</div>
+                <div className="item-cell value">{item.value}</div>
               </div>
-              <div className="item-cell id">{item.id}</div>
-              <div className="item-cell value">{item.value}</div>
-            </div>
-          );
-        }}
-      </Draggable>
-    );
-  };
+            );
+          }}
+        </Draggable>
+      );
+    };
+  }, [items, selectedIds, draggingId, loading, handleSelect]);
 
   return (
     <div className="item-list-container">
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={() => setError(null)}>✕</button>
+        </div>
+      )}
+      
       <div className="item-list-header">
         <div className="search-bar">
           <input
@@ -186,10 +333,15 @@ export const ItemList: React.FC = () => {
             disabled={loading}
           />
         </div>
-        <button className="reset-btn" onClick={handleReset} disabled={loading}>
+        <button 
+          className="reset-btn" 
+          onClick={handleReset} 
+          disabled={loading}
+        >
           Сбросить
         </button>
       </div>
+      
       <div className="item-list-table">
         <div className="item-list-header-row">
           <div className="item-cell checkbox">
@@ -203,48 +355,66 @@ export const ItemList: React.FC = () => {
           <div className="item-cell id">ID</div>
           <div className="item-cell value">Значение</div>
         </div>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable 
-            droppableId="items-list"
-            mode="virtual"
-            renderClone={(provided, _snapshot, rubric) => (
-              <div
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                ref={provided.innerRef}
-                className={`item-row dragging`}
-              >
-                <div className="item-cell checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(items[rubric.source.index].id)}
-                    readOnly
-                  />
-                </div>
-                <div className="item-cell id">{items[rubric.source.index].id}</div>
-                <div className="item-cell value">{items[rubric.source.index].value}</div>
-              </div>
-            )}
-          >
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                {items.length === 0 && !loading && (
-                  <div className="empty-list">Нет данных</div>
-                )}
-                <List
-                  height={600}
-                  itemCount={items.length}
-                  itemSize={ROW_HEIGHT}
-                  width="100%"
-                  onScroll={handleScroll}
+        
+        {isInitialLoading ? (
+          <div className="loading-indicator">Загрузка данных...</div>
+        ) : (
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable 
+              droppableId="items-list"
+              mode="virtual"
+              renderClone={(provided, _snapshot, rubric) => (
+                <div
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  ref={provided.innerRef}
+                  className={`item-row dragging`}
                 >
-                  {Row}
-                </List>
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        {loading && <div className="spinner"><div /></div>}
+                  <div className="item-cell checkbox">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(items[rubric.source.index].id)}
+                      readOnly
+                    />
+                  </div>
+                  <div className="item-cell id">{items[rubric.source.index].id}</div>
+                  <div className="item-cell value">{items[rubric.source.index].value}</div>
+                </div>
+              )}
+            >
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {items.length === 0 && !loading && !isSearching ? (
+                    <div className="empty-list">Нет данных</div>
+                  ) : null}
+                  
+                  {isSearching ? (
+                    <div className="loading-indicator search">Поиск...</div>
+                  ) : (
+                    <List
+                      height={600}
+                      itemCount={items.length}
+                      itemSize={ROW_HEIGHT}
+                      width="100%"
+                      onScroll={handleScroll}
+                    >
+                      {Row}
+                    </List>
+                  )}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        )}
+        
+        {isLoadingMore && !isInitialLoading && !isSearching && (
+          <div className="loading-more">Загрузка дополнительных элементов...</div>
+        )}
+        
+        {loading && !isInitialLoading && !isSearching && !isLoadingMore && (
+          <div className="spinner"><div /></div>
+        )}
+        
         <div className="item-list-stats">
           Показано {items.length} из {total} элементов
           {selectedIds.size > 0 && `, выбрано: ${selectedIds.size}`}

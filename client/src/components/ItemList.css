@@ -194,4 +194,51 @@
     font-size: 14px;
     padding: 0;
   }
+}
+
+.error-message {
+  background-color: #fff3f3;
+  border: 1px solid #ffcaca;
+  color: #d32f2f;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message button {
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-indicator.search {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.loading-more {
+  text-align: center;
+  padding: 10px;
+  color: #666;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
 } 

@@ -14,10 +14,14 @@ const api = axios.create({
 export const fetchItems = async (
   page: number = 0,
   limit: number = 20,
-  search?: string
+  search?: string,
+  signal?: AbortSignal
 ): Promise<ItemsResponse> => {
   const params = { page, limit, search };
-  const response = await api.get<ItemsResponse>('/items', { params });
+  const response = await api.get<ItemsResponse>('/items', { 
+    params,
+    signal 
+  });
   return response.data;
 };
 
