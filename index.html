@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterZBrush - Профессиональные курсы 3D-моделирования</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            scroll-behavior: smooth;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(101, 43, 219, 0.2) 0%, rgba(28, 14, 61, 0.8) 100%);
+        }
+        
+        .zbrush-gradient {
+            background: linear-gradient(45deg, #652BDB 0%, #9240E4 50%, #B84DFF 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .model-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .model-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(101, 43, 219, 0.3);
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(148, 64, 228, 0.5);
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #652BDB 50%, transparent 100%);
+        }
+        
+        .tooltip:hover .tooltip-text {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .rotating-3d {
+            animation: rotate 20s infinite linear;
+        }
+        
+        @keyframes rotate {
+            0% { transform: perspective(1000px) rotateY(0deg); }
+            100% { transform: perspective(1000px) rotateY(360deg); }
+        }
+        
+        input:checked + .toggle-dot {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header/Navigation -->
+    <header class="fixed w-full z-50 gradient-bg border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full glow-effect flex items-center justify-center mr-3">
+                        <i class="fas fa-cube text-purple-500 text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">Master<span class="zbrush-gradient">ZBrush</span></span>
+                </div>
+                
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-gray-300 hover:text-white transition duration-300">Главная</a>
+                    <a href="#courses" class="text-gray-300 hover:text-white transition duration-300">Курсы</a>
+                    <a href="#features" class="text-gray-300 hover:text-white transition duration-300">Преимущества</a>
+                    <a href="#mentors" class="text-gray-300 hover:text-white transition duration-300">Наставники</a>
+                    <a href="#testimonials" class="text-gray-300 hover:text-white transition duration-300">Отзывы</a>
+                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="hidden md:block px-6 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition duration-300">
+                        Начать обучение
+                    </button>
+                    <button class="md:hidden text-gray-300 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient pt-32 pb-20 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-20">
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iIzY1MkJkQiIgY3g9IjIwIiBjeT0iMjAiIHI9IjEuNSIvPjwvZz48L3N2Zz4=')]"></div>
+        </div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                        Создавайте <span class="zbrush-gradient">шедевры</span> в индустрии 3D
+                    </h1>
+                    <p class="text-lg text-gray-300 mb-8 max-w-lg">
+                        Освойте ZBrush на профессиональном уровне с нашими курсами. От новичка до профи под руководством опытных наставников.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <button class="px-8 py-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition duration-300 text-lg">
+                            Выбрать курс
+                        </button>
+                        <button class="px-8 py-3 rounded-full bg-transparent border-2 border-purple-600 text-white font-medium hover:bg-purple-600/10 transition duration-300 text-lg">
+                            Бесплатный урок
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 flex justify-center">
+                    <div class="relative w-80 h-80 md:w-96 md:h-96">
+                        <div class="absolute inset-0 rounded-xl overflow-hidden rotating-3d">
+                            <div class="w-full h-full bg-[url('https://images.unsplash.com/photo-1639322537228-f710d846310a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')] bg-cover bg-center"></div>
+                        </div>
+                        <div class="absolute -bottom-6 -left-6 w-32 h-32 rounded-lg overflow-hidden border-2 border-purple-500">
+                            <img src="https://images.unsplash.com/photo-1637858868799-7f26a0640eb6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Work example" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -top-6 -right-6 w-32 h-32 rounded-lg overflow-hidden border-2 border-pink-500">
+                            <img src="https://images.unsplash.com/photo-1623874106687-0b3af4dbf8e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Work example" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 gradient-bg">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-purple-400 mb-2">1500+</div>
+                    <div class="text-gray-400">Учеников</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-pink-400 mb-2">320+</div>
+                    <div class="text-gray-400">Часов обучения</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-purple-400 mb-2">15</div>
+                    <div class="text-gray-400">Курсов</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-pink-400 mb-2">97%</div>
+                    <div class="text-gray-400">Довольных студентов</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="py-20 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-purple-900/20 to-transparent -skew-x-12 -translate-x-1/4"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Наши <span class="zbrush-gradient">курсы</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Выберите курс, который соответствует вашим целям и текущему уровню</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Course 1 -->
+                <div class="model-card gradient-bg rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50">
+                    <div class="h-48 bg-[url('https://images.unsplash.com/photo-1637858868799-7f26a0640eb6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80')] bg-cover bg-center"></div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">ZBrush для начинающих</h3>
+                                <div class="flex items-center text-sm text-gray-400">
+                                    <i class="fas fa-signal text-purple-500 mr-2"></i> Начальный уровень
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-purple-900/50 flex items-center justify-center">
+                                    <i class="fas fa-star text-yellow-500 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">Освойте основы ZBrush с нуля: интерфейс, базовые инструменты и создание простых моделей.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-gray-500 mr-2"></i>
+                                <span class="text-sm text-gray-400">24 урока</span>
+                            </div>
+                            <div class="text-lg font-bold text-purple-400">9 900 ₽</div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <button class="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600/60 to-purple-600/30 hover:from-purple-600 hover:to-purple-500 transition duration-300 font-medium border border-purple-500/50">
+                            Подробнее
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Course 2 -->
+                <div class="model-card gradient-bg rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 glow-effect">
+                    <div class="absolute top-4 right-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        Популярный
+                    </div>
+                    <div class="h-48 bg-[url('https://images.unsplash.com/photo-1634142763047-9a8f5fc73e91?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80')] bg-cover bg-center"></div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">Персонажи в ZBrush</h3>
+                                <div class="flex items-center text-sm text-gray-400">
+                                    <i class="fas fa-signal text-purple-500 mr-2"></i> Средний уровень
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-purple-900/50 flex items-center justify-center">
+                                    <i class="fas fa-star text-yellow-500 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">Научитесь создавать детализированных персонажей для игр и кино с нуля до финального рендера.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-gray-500 mr-2"></i>
+                                <span class="text-sm text-gray-400">36 уроков</span>
+                            </div>
+                            <div class="text-lg font-bold text-purple-400">19 900 ₽</div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <button class="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition duration-300 font-medium">
+                            Купить курс
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Course 3 -->
+                <div class="model-card gradient-bg rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50">
+                    <div class="h-48 bg-[url('https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80')] bg-cover bg-center"></div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">Скульптинг существ</h3>
+                                <div class="flex items-center text-sm text-gray-400">
+                                    <i class="fas fa-signal text-purple-500 mr-2"></i> Продвинутый уровень
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-purple-900/50 flex items-center justify-center">
+                                    <i class="fas fa-star text-yellow-500 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-400 mb-6">Создавайте фантастических существ с реалистичной анатомией и детальной проработкой.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-gray-500 mr-2"></i>
+                                <span class="text-sm text-gray-400">42 урока</span>
+                            </div>
+                            <div class="text-lg font-bold text-purple-400">24 900 ₽</div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <button class="w-full py-2 rounded-lg bg-gradient-to-r from-purple-600/60 to-purple-600/30 hover:from-purple-600 hover:to-purple-500 transition duration-300 font-medium border border-purple-500/50">
+                            Подробнее
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <button class="px-8 py-3 rounded-full bg-transparent border-2 border-purple-600 text-white font-medium hover:bg-purple-600/10 transition duration-300 text-lg inline-flex items-center">
+                    <span>Показать все курсы</span>
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 gradient-bg">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Почему выбирают <span class="zbrush-gradient">нас</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Обучение, которое действительно дает результат</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="p-6 gradient-bg rounded-xl border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 flex items-center justify-center mb-6">
+                        <i class="fas fa-user-graduate text-purple-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Персональный наставник</h3>
+                    <p class="text-gray-400">У каждого студента есть персональный куратор, который проверяет работы и отвечает на вопросы</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="p-6 gradient-bg rounded-xl border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 flex items-center justify-center mb-6">
+                        <i class="fas fa-video text-pink-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Доступ навсегда</h3>
+                    <p class="text-gray-400">Все материалы курса остаются с вами навсегда, включая обновления и дополнения</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="p-6 gradient-bg rounded-xl border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 flex items-center justify-center mb-6">
+                        <i class="fas fa-briefcase text-purple-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Карьерная поддержка</h3>
+                    <p class="text-gray-400">Помощь в составлении портфолио и подготовке к собеседованиям для работы в индустрии</p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="p-6 gradient-bg rounded-xl border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 flex items-center justify-center mb-6">
+                        <i class="fas fa-comments text-pink-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Закрытый чат</h3>
+                    <p class="text-gray-400">Доступ к сообществу единомышленников, где можно обсуждать проекты и находить коллег</p>
+                </div>
+                
+                <!-- Feature 5 -->
+                <div class="p-6 gradient-bg rounded-xl border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 flex items-center justify-center mb-6">
+                        <i class="fas fa-project-diagram text-purple-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Реальные проекты</h3>
+                    <p class="text-gray-400">Выполняете работы для своего портфолио, которые впечатлят будущих работодателей</p>
+                </div>
+                
+                <!-- Feature 6 -->
+                <div class="p-6 gradient-bg rounded-xl border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 flex items-center justify-center mb-6">
+                        <i class="fas fa-certificate text-pink-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Сертификат</h3>
+                    <p class="text-gray-400">Официальный сертификат об окончании курса, подтверждающий ваши навыки</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentors Section -->
+    <section id="mentors" class="py-20 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-900/20 to-transparent skew-x-12 translate-x-1/4"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Наши <span class="zbrush-gradient">наставники</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Профессионалы с опытом работы в индустрии игр и кино</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Mentor 1 -->
+                <div class="model-card gradient-bg rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="h-64 bg-[url('https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80')] bg-cover bg-center"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Максим Ильин</h3>
+                        <div class="text-purple-400 mb-4">Lead 3D Artist в CD Projekt Red</div>
+                        <p class="text-gray-400 mb-4">12 лет опыта работы в индустрии игр. Участвовал в создании The Witcher 3 и Cyberpunk 2077.</p>
+                        <div class="flex space-x-2">
+                            <div class="tooltip relative">
+                                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                                    <i class="fab fa-artstation text-gray-300"></i>
+                                </div>
+                                <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-gray-900 text-white text-xs text-center py-1 px-2 rounded opacity-0 invisible transition-opacity duration-300">
+                                    ArtStation
+                                </div>
+                            </div>
+                            <div class="tooltip relative">
+                                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                                    <i class="fab fa-linkedin-in text-gray-300"></i>
+                                </div>
+                                <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-gray-900 text-white text-xs text-center py-1 px-2 rounded opacity-0 invisible transition-opacity duration-300">
+                                    LinkedIn
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mentor 2 -->
+                <div class="model-card gradient-bg rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="h-64 bg-[url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80')] bg-cover bg-center"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Анна Смирнова</h3>
+                        <div class="text-purple-400 mb-4">Character Artist в Blizzard Entertainment</div>
+                        <p class="text-gray-400 mb-4">Специалист по созданию персонажей для AAA-игр. Опыт работы более 8 лет.</p>
+                        <div class="flex space-x-2">
+                            <div class="tooltip relative">
+                                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                                    <i class="fab fa-artstation text-gray-300"></i>
+                                </div>
+                                <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-gray-900 text-white text-xs text-center py-1 px-2 rounded opacity-0 invisible transition-opacity duration-300">
+                                    ArtStation
+                                </div>
+                            </div>
+                            <div class="tooltip relative">
+                                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                                    <i class="fab fa-behance text-gray-300"></i>
+                                </div>
+                                <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-gray-900 text-white text-xs text-center py-1 px-2 rounded opacity-0 invisible transition-opacity duration-300">
+                                    Behance
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mentor 3 -->
+                <div class="model-card gradient-bg rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <div class="h-64 bg-[url('https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80')] bg-cover bg-center"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Дмитрий Кузнецов</h3>
+                        <div class="text-purple-400 mb-4">Freelance 3D Artist для кино</div>
+                        <p class="text-gray-400 mb-4">Работал над визуальными эффектами для фильмов Marvel и DC. Учился у ведущих мировых специалистов.</p>
+                        <div class="flex space-x-2">
+                            <div class="tooltip relative">
+                                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                                    <i class="fab fa-imdb text-gray-300"></i>
+                                </div>
+                                <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-gray-900 text-white text-xs text-center py-1 px-2 rounded opacity-0 invisible transition-opacity duration-300">
+                                    IMDB
+                                </div>
+                            </div>
+                            <div class="tooltip relative">
+                                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                                    <i class="fab fa-vimeo-v text-gray-300"></i>
+                                </div>
+                                <div class="tooltip-text absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-32 bg-gray-900 text-white text-xs text-center py-1 px-2 rounded opacity-0 invisible transition-opacity duration-300">
+                                    Showreel
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 gradient-bg">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Отзывы <span class="zbrush-gradient">студентов</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Что говорят те, кто уже прошел наши курсы</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="gradient-bg rounded-xl p-8 border border-gray-800 relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 rounded-full overflow-hidden border-2 border-purple-500">
+                        <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="Student" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex mb-1">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">От нуля до работы мечты</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">"Год назад я даже не знала, как открыть ZBrush. Сейчас работаю в студии мобильных игр как 3D-художник. Курс 'Персонажи в ZBrush' полностью изменил мою карьеру!"</p>
+                    <div class="text-purple-400 font-medium">Екатерина Соколова</div>
+                    <div class="text-sm text-gray-500">Выпуск 2023</div>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="gradient-bg rounded-xl p-8 border border-gray-800 relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 rounded-full overflow-hidden border-2 border-purple-500">
+                        <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Student" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex mb-1">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Лучшая инвестиция в себя</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">"Прошел курс 'Скульптинг существ' и через месяц получил первый заказ на фрилансе. Теперь мои работы публикуют в профессиональных пабликах. Отдельное спасибо наставнику за детальный разбор ошибок!"</p>
+                    <div class="text-purple-400 font-medium">Артем Васильев</div>
+                    <div class="text-sm text-gray-500">Выпуск 2022</div>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="gradient-bg rounded-xl p-8 border border-gray-800 relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 rounded-full overflow-hidden border-2 border-purple-500">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Student" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex mb-1">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Прорыв в скиллах</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">"После базового курса мой уровень работы с ZBrush вырос в разы. Теперь могу создавать сложные модели за рекордно короткое время. Особенно полезными были разделы про оптимизацию рабочего процесса."</p>
+                    <div class="text-purple-400 font-medium">Ольга Иванова</div>
+                    <div class="text-sm text-gray-500">Выпуск 2023</div>
+                </div>
+                
+                <!-- Testimonial 4 -->
+                <div class="gradient-bg rounded-xl p-8 border border-gray-800 relative">
+                    <div class="absolute -top-4 -left-4 w-12 h-12 rounded-full overflow-hidden border-2 border-purple-500">
+                        <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Student" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex mb-1">
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                            <i class="fas fa-star-half-alt text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold">Сменил профессию в 35 лет</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">"Бухгалтер по образованию, теперь 3D-художник. Благодаря четкой структуре курсов и поддержке наставников смог освоить ZBrush с нуля и найти работу в геймдеве. Всем рекомендую!"</p>
+                    <div class="text-purple-400 font-medium">Андрей Петров</div>
+                    <div class="text-sm text-gray-500">Выпуск 2022</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="py-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0yMCAzOC41NjdDMTMuMzQ5IDM4LjU2NyA3Ljc4MSAzOC4xMjkgNy43ODEgMzcuNTY3IDcuNzgxIDM3LjAwNSAxMy4zNDkgMzYuNTY3IDIwIDM2LjU2NyAyNi42NTEgMzYuNTY3IDMyLjIyIDM3LjAwNSAzMi4yMiAzNy41NjcgMzIuMjIgMzguMTI5IDI2LjY1MSAzOC41NjcgMjAgMzguNTY3ek03Ljc4MSAzNy41NjdDNy43ODEgMzguMTI5IDcuNzgxIDM3LjAwNSA3Ljc4MSAzNy41Njd6IiBmaWxsPSIjOTI0MGU0Ii8+PHBhdGggZD0iTTIwIDMxLjg4OEMxMy4zNDkgMzEuODg4IDcuNzgxIDMxLjQ1IDcuNzgxIDMwLjg4OCA3Ljc4MSAzMC4zMjYgMTMuMzQ5IDI5Ljg4OCAyMCAyOS44ODggMjYuNjUxIDI5Ljg4OCAzMi4yMiAzMC4zMjYgMzIuMjIgMzAuODg4IDMyLjIyIDMxLjQ1IDI2LjY1MSAzMS44ODggMjAgMzEuODg4ek03Ljc4MSAzMC44ODhDNy43ODEgMzEuNDUgNy43ODEgMzAuMzI2IDcuNzgxIDMwLjg4OHoiIGZpbGw9IiM2NTJiZGIiIG9wYWNpdHk9IjAuNSIvPjxjaXJjbGUgZmlsbD0iI2I4NGRmZiIgY3g9IjIwIiBjeT0iMjAiIHI9IjEuNSIvPjwvZz48L3N2Zz4=')]"></div>
+        </div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4"><span class="zbrush-gradient">Тарифы</span> обучения</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Выберите подходящий вариант для ваших целей</p>
+            </div>
+            
+            <div class="flex justify-center mb-8">
+                <div class="flex items-center">
+                    <span class="mr-3 text-gray-400">Ежемесячная оплата</span>
+                    <div class="relative inline-block w-14 h-7 cursor-pointer">
+                        <input type="checkbox" id="toggle" class="sr-only" checked>
+                        <div class="block bg-gray-700 w-full h-full rounded-full transition-all duration-300"></div>
+                        <div class="toggle-dot absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"></div>
+                    </div>
+                    <span class="ml-3 text-white font-medium">Годовая оплата (-30%)</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Plan 1 -->
+                <div class="gradient-bg rounded-xl p-8 border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <h3 class="text-xl font-bold mb-4">Стандарт</h3>
+                    <div class="text-4xl font-bold mb-4">
+                        <span class="text-purple-400">9 900</span> ₽<span class="text-base text-gray-400">/мес</span>
+                    </div>
+                    <div class="text-gray-400 mb-6">Лучший выбор для самостоятельного изучения</div>
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Доступ ко всем урокам курса</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Домашние задания</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Тесты после модулей</span>
+                        </div>
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-times text-red-500 mr-3"></i>
+                            <span>Проверка работ наставником</span>
+                        </div>
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-times text-red-500 mr-3"></i>
+                            <span>Личные консультации</span>
+                        </div>
+                    </div>
+                    <button class="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600/60 to-purple-600/30 hover:from-purple-600 hover:to-purple-500 transition duration-300 font-medium border border-purple-500/50">
+                        Выбрать тариф
+                    </button>
+                </div>
+                
+                <!-- Plan 2 (Recommended) -->
+                <div class="gradient-bg rounded-xl p-8 border-2 border-purple-500/50 relative glow-effect">
+                    <div class="absolute -top-4 right-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                        Популярный
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Премиум</h3>
+                    <div class="text-4xl font-bold mb-4">
+                        <span class="text-purple-400">19 900</span> ₽<span class="text-base text-gray-400">/мес</span>
+                    </div>
+                    <div class="text-gray-400 mb-6">Оптимальный вариант с поддержкой</div>
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Доступ ко всем урокам курса</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Домашние задания</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Тесты после модулей</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Проверка работ наставником</span>
+                        </div>
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-times text-red-500 mr-3"></i>
+                            <span>Личные консультации</span>
+                        </div>
+                    </div>
+                    <button class="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition duration-300 font-medium">
+                        Выбрать тариф
+                    </button>
+                </div>
+                
+                <!-- Plan 3 -->
+                <div class="gradient-bg rounded-xl p-8 border border-gray-800 hover:border-purple-500/30 transition duration-300">
+                    <h3 class="text-xl font-bold mb-4">VIP</h3>
+                    <div class="text-4xl font-bold mb-4">
+                        <span class="text-purple-400">39 900</span> ₽<span class="text-base text-gray-400">/мес</span>
+                    </div>
+                    <div class="text-gray-400 mb-6">Максимальная поддержка и скорость роста</div>
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Доступ ко всем урокам курса</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Домашние задания</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Тесты после модулей</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Проверка работ наставником</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Личные консультации</span>
+                        </div>
+                    </div>
+                    <button class="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600/60 to-purple-600/30 hover:from-purple-600 hover:to-purple-500 transition duration-300 font-medium border border-purple-500/50">
+                        Выбрать тариф
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20 gradient-bg">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Частые <span class="zbrush-gradient">вопросы</span></h2>
+                <p class="text-gray-400">Мы собрали ответы на самые популярные вопросы о наших курсах</p>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- FAQ 1 -->
+                <div class="group border-b border-gray-800 pb-6">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="text-lg font-medium group-hover:text-purple-400 transition duration-300">С какого уровня можно начать обучение?</h3>
+                        <i class="fas fa-chevron-down text-gray-500 group-hover:text-purple-400 transition duration-300 transform group-focus:rotate-180"></i>
+                    </button>
+                    <div class="mt-4 text-gray-400">
+                        Наши курсы подходят для всех уровней - от полных новичков до продвинутых художников. У нас есть программы как для тех, кто впервые открывает ZBrush, так и для тех, кто хочет углубить свои профессиональные навыки.
+                    </div>
+                </div>
+                
+                <!-- FAQ 2 -->
+                <div class="group border-b border-gray-800 pb-6">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="text-lg font-medium group-hover:text-purple-400 transition duration-300">Какие требования к компьютеру для работы с ZBrush?</h3>
+                        <i class="fas fa-chevron-down text-gray-500 group-hover:text-purple-400 transition duration-300"></i>
+                    </button>
+                    <div class="mt-4 text-gray-400">
+                        Для комфортной работы с ZBrush рекомендуется компьютер с процессором не ниже Intel Core i7 (или эквивалент AMD), 16 ГБ оперативной памяти, видеокарта с поддержкой OpenGL 3.3 и выше. Идеально - графический планшет (например, Wacom Intuos).
+                    </div>
+                </div>
+                
+                <!-- FAQ 3 -->
+                <div class="group border-b border-gray-800 pb-6">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="text-lg font-medium group-hover:text-purple-400 transition duration-300">Даете ли вы сертификат по окончании курса?</h3>
+                        <i class="fas fa-chevron-down text-gray-500 group-hover:text-purple-400 transition duration-300"></i>
+                    </button>
+                    <div class="mt-4 text-gray-400">
+                        Да, по окончании любого курса при условии выполнения всех домашних заданий вы получаете именной сертификат, подтверждающий ваши навыки. Для курсов Premium и VIP сертификат имеет особый статус с рекомендацией от наставника.
+                    </div>
+                </div>
+                
+                <!-- FAQ 4 -->
+                <div class="group border-b border-gray-800 pb-6">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="text-lg font-medium group-hover:text-purple-400 transition duration-300">Можно ли получить возврат средств?</h3>
+                        <i class="fas fa-chevron-down text-gray-500 group-hover:text-purple-400 transition duration-300"></i>
+                    </button>
+                    <div class="mt-4 text-gray-400">
+                        Мы предоставляем 14-дневный период для возврата средств с момента приобретения курса, если вы не удовлетворены качеством обучения. По истечении этого срока возврат возможен только в исключительных случаях по решению администрации.
+                    </div>
+                </div>
+                
+                <!-- FAQ 5 -->
+                <div class="group border-b border-gray-800 pb-6">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="text-lg font-medium group-hover:text-purple-400 transition duration-300">Как проходит проверка домашних заданий?</h3>
+                        <i class="fas fa-chevron-down text-gray-500 group-hover:text-purple-400 transition duration-300"></i>
+                    </button>
+                    <div class="mt-4 text-gray-400">
+                        Для тарифа Premium и VIP наставник подробно разбирает каждую вашу работу, отмечает ошибки и дает рекомендации по улучшению. В тарифе Standard вы получаете доступ к эталонным решениям и можете сравнивать свои работы с ними.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 relative overflow-hidden hero-gradient">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0yMCAzOC41NjdDMTMuMzQ5IDM4LjU2NyA3Ljc4MSAzOC4xMjkgNy43ODEgMzcuNTY3IDcuNzgxIDM3LjAwNSAxMy4zNDkgMzYuNTY3IDIwIDM2LjU2NyAyNi42NTEgMzYuNTY3IDMyLjIyIDM3LjAwNSAzMi4yMiAzNy41NjcgMzIuMjIgMzguMTI5IDI2LjY1MSAzOC41NjcgMjAgMzguNTY3ek03Ljc4MSAzNy41NjdDNy43ODEgMzguMTI5IDcuNzgxIDM3LjAwNSA3Ljc4MSAzNy41Njd6IiBmaWxsPSIjOTI0MGU0Ii8+PHBhdGggZD0iTTIwIDMxLjg4OEMxMy4zNDkgMzEuODg4IDcuNzgxIDMxLjQ1IDcuNzgxIDMwLjg4OCA3Ljc4MSAzMC4zMjYgMTMuMzQ5IDI5Ljg4OCAyMCAyOS44ODggMjYuNjUxIDI5Ljg4OCAzMi4yMiAzMC4zMjYgMzIuMjIgMzAuODg4IDMyLjIyIDMxLjQ1IDI2LjY1MSAzMS44ODggMjAgMzEuODg4ek03Ljc4MSAzMC44ODhDNy43ODEgMzEuNDUgNy43ODEgMzAuMzI2IDcuNzgxIDMwLjg4OHoiIGZpbGw9IiM2NTJiZGIiIG9wYWNpdHk9IjAuNSIvPjxjaXJjbGUgZmlsbD0iI2I4NGRmZiIgY3g9IjIwIiBjeT0iMjAiIHI9IjEuNSIvPjwvZz48L3N2Zz4=')]"></div>
+        </div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Готовы начать свой путь в мире <span class="zbrush-gradient">3D-моделирования</span>?</h2>
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Присоединяйтесь к более чем 1500 студентов, которые уже освоили ZBrush с нашими курсами</p>
+                <button class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition duration-300 text-lg inline-flex items-center shadow-lg">
+                    <span>Выбрать курс</span>
+                    <i class="fas fa-arrow-right ml-3"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="gradient-bg py-12 border-t border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full glow-effect flex items-center justify-center mr-3">
+                            <i class="fas fa-cube text-purple-500 text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">Master<span class="zbrush-gradient">ZBrush</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Профессиональное обучение 3D-моделированию в ZBrush</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">
+                            <i class="fab fa-vk text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">
+                            <i class="fab fa-discord text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Курсы</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Для начинающих</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Скульптинг персонажей</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Создание существ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Текстурирование</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Все курсы</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-6">О нас</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Наставники</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Работы студентов</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Истории успеха</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Вакансии</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Контакты</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-6">Поддержка</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Блог</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Техподдержка</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Условия использования</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-purple-400 transition duration-300">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                    © 2023 MasterZBrush. Все права защищены.
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-purple-400 transition duration-300 text-sm">Пользовательское соглашение</a>
+                    <a href="#" class="text-gray-500 hover:text-purple-400 transition duration-300 text-sm">Политика конфиденциальности</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle functionality for FAQ
+        document.querySelectorAll('.group button').forEach(button => {
+            button.addEventListener('click', () => {
+                const faq = button.parentElement;
+                const icon = button.querySelector('i');
+                
+                faq.classList.toggle('active');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+        
+        // Simple toggle for pricing
+        const toggle = document.getElementById('toggle');
+        toggle.addEventListener('change', function() {
+            const monthlyPrices = document.querySelectorAll('.text-4xl span');
+            monthlyPrices.forEach(price => {
+                if (this.checked) {
+                    // Convert to yearly price (30% discount)
+                    const monthlyValue = parseInt(price.textContent.replace(/\s+/g, ''));
+                    const yearlyValue = Math.floor(monthlyValue * 0.7);
+                    price.textContent = yearlyValue.toLocaleString('ru-RU');
+                } else {
+                    // Revert to monthly price
+                    const yearlyValue = parseInt(price.textContent.replace(/\s+/g, ''));
+                    const monthlyValue = Math.floor(yearlyValue / 0.7);
+                    price.textContent = monthlyValue.toLocaleString('ru-RU');
+                }
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
